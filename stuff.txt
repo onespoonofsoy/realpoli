@@ -1,3 +1,54 @@
-Roaring Thunder
-Northern Lights
-Through the night, they fly
+GAME LOGIC
+
+TERMINOLOGY and KEY
+- A -> B = A converted to / spent on B
+- A :: B = A used as a factor to determine how much B you get
+
+PLAYER SETUP
+Total number of players: 2 <= n <= 8
+Starting STATS: 
+- Seats: 120/n (119/7 if n = 7)
+- Money: $2000
+- Support: 100
+
+STATS per PLAYER
+- Seats: used to vote on LEGISLATION.
+- Money: used to complete ACTIONS.
+- Support: Used to determine ELECTION outcome.
+
+ACTIONS:
+
+Rally: Money -> Support
+- small rally 
+    -$100, + 10 + rand(-2~10) Support
+- medium rally  
+    -$500, + 50 + rand(-10~50) Support
+- large rally 
+    -$1000, + 100 + rand(-20~100) Support
+
+Fundraiser: Support :: Money
+    + 1000 * (Support/sum(Support)) + rand(-500~500)
+
+ELECTIONS:
+- Each party gets a proportion of the total number of seats.
+- The proportion is equal to their support over the sum of all supports.
+- After each election, the turn order changes: most seats go first.
+
+////////////////////
+THINGS TO ADD LATER:
+ACTIONS
+- Sabotage: disrupt the workings of another party
+- Survey: get information from voters
+OTHER IDEAS
+- Special events (disasters, scandals, protests etc.)
+- Interest groups
+- Assassinations
+- Coalitions
+- Prime Ministers and Presidents
+- Courts
+- Party mergers
+- Party puppeteering
+- Party ideology
+- Instability (within party)
+
+
