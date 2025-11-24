@@ -204,12 +204,12 @@ while not victory:
         elif selection == 3: # PROPOSE LEGISLATION
             print("Choose legislation to propose: ")
             lawlist = [
-                "1. Support a policy.",
-                "2. Denounce a policy.",
+                "1. Support a policy.", # not implemented yet
+                "2. Denounce a policy.", # not implemented yet
                 "3. Change election period.",
                 "4. Call a snap election.",
-                "5. Ban a party.",
-                "6. Grant emergency powers.",
+                "5. Ban a party.", # not implemented yet
+                "6. Grant emergency powers.", # not implemented yet
             ]
             for l in lawlist[2:]:
                 print(l)
