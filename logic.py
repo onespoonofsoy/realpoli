@@ -88,15 +88,18 @@ update_display()
 ### MAIN LOOP ###
 victory = False
 election = False
+snap_election = False
+electoral_term = 4
 while not victory:
 
-    # announce year
+    # announce year (PER-YEAR ACTIONS)
     if year == election_year:
         print("It's election year!")
-        election_year += 4
+        election_year += electoral_term
         election = True
     print('CURRENT YEAR:',year)
     print('NEXT ELECTION:', election_year,'\n')
+    legislative_agenda = []
 
     # PER-PARTY ACTIONS
     for id in range(len(roster)):
@@ -113,8 +116,8 @@ while not victory:
         # print(" Seats:",party.seats)
         print(f" Seats: {party.seats}/{total_seats}")
         print("Options:")
-        print("1. Rally\n2. Fundraiser\n3. Sabotage\n4. Survey\n5. Skip")
-        selection = putty(range(1,6))
+        print("1. Rally\n2. Fundraiser\n3. Propose legislation\n4. Skip")
+        selection = putty(range(1,5))
         
         if selection == 1: # RALLY
             upper_limit = 1
@@ -198,14 +201,30 @@ while not victory:
             print(f"Money: +{money}")
             party.money += money
         
-        elif selection == 3: # SABOTAGE
-            print("sabotage not implemented yet")
+        elif selection == 3: # PROPOSE LEGISLATION
+            print("Choose legislation to propose: ")
+            lawlist = [
+                "1. Support a policy.",
+                "2. Denounce a policy.",
+                "3. Change election period.",
+                "4. Call a snap election.",
+                "5. Ban a party.",
+                "6. Grant emergency powers.",
+            ]
+            for l in lawlist[2:]:
+                print(l)
+            bill = putty(range(2,7))
+            legislative_agenda.append((bill,party))
         
-        elif selection == 4: # SURVEY
-            print("survey not implemented yet")
+        elif selection == 4: # SKIP (SURVEY)
+            print('TURN SKIPPED')
+            # print("survey not implemented yet")
         
-        elif selection == 5: # SKIP
-            print('alrighty then')
+        elif selection == 5: # PROPOSE LEGISLATION
+            print('TURN SKIPPED')
+
+        elif selection == 6: # SKIP
+            print("TURN SKIPPED")
         
         else:
             print('ERROR')
@@ -213,9 +232,83 @@ while not victory:
         
         print()
 
+    # LEGISLATIVE SESSION
+
+    # vote: vote on something
+    def vote(roster, sponsor) -> bool:
+        yea = 0; nay = 0; abstain = 0;
+        yea_list = []
+        nay_list = []
+        abstain_list = []
+        print('y: YEA / n: NAY / a: ABSTAIN')
+        for party in roster:
+            print(f"{party.name}, what is your vote? ::: ",end="")
+            vota = ""
+            while vota not in ['y','n','a']: vota = input()
+            if vota == 'y': 
+                yea += party.seats
+                yea_list.append(party)
+            elif vota == 'n': 
+                nay += party.seats
+                nay_list.append(party)
+            else: 
+                abstain += party.seats
+                abstain_list.append(party)
+        print('FINAL RESULTS')
+        print('Yea:',yea,'Nay:',nay,'Abstain:',abstain)
+        print("Yea:",yea_list)
+        print("Nay:",nay_list)
+        if abstain_list: print("Abstain:",abstain_list)
+        if yea > nay: 
+            print("The bill has passed.")
+            sponsor.support += 200
+            for yea_sayer in yea_list:
+                yea_sayer.support += 50
+            return True
+        else: 
+            print("The bill did not pass.")
+            sponsor.support -= 50
+            return False
+
+    print(f"Legislative Session of {year}")
+    for bill_proposal, sponsor in legislative_agenda:
+        print()
+        print("PROPOSAL: ",end="")
+        if bill_proposal == 1:
+            print("Motion to support")
+            print("Not implemented yet")
+        if bill_proposal == 2:
+            print("Motion to denounce")
+            print("Not implemented yet")
+        if bill_proposal == 3:
+            print("Motion to change electoral terms")
+            print(f"{sponsor.name}, how many years should a term be?")
+            proposed_term = putty(range(1,11))
+            if vote(roster, sponsor):
+                print("The electoral term is now",proposed_term,"years.")
+                print("This shall take effect after the next election.")
+                electoral_term = proposed_term
+        if bill_proposal == 4:
+            print("Motion to call a snap election")
+            if vote(roster, sponsor):
+                print("Snap elections shall take place.")
+                election = True
+                snap_election = True
+        if bill_proposal == 5:
+            print("Motion to ban a party")
+            print("Not implemented yet")
+        if bill_proposal == 6:
+            print("Motion to grant emergency powers to")
+            print("Not implemented yet")
+    print()
+
     # ELECTIONS
     if election:
-        
+
+        if snap_election: 
+            print("SNAP ",end="")
+            election_year = year + electoral_term
+
         print("ELECTION OF", year)
         support_sum = sum([p.support for p in roster])
         for party in roster:
