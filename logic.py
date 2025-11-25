@@ -20,7 +20,8 @@ def putty(ranger) -> int:
     return return_val
 
 ### IMPORTANT VARIABLES ###
-year = 1900
+last_election = 1900
+year = 1901
 election_year = 1904
 success_statements = [
     'sum ting wong',
@@ -206,7 +207,7 @@ while not victory:
             lawlist = [
                 "1. Support a policy.", # not implemented yet
                 "2. Denounce a policy.", # not implemented yet
-                "3. Change election period.",
+                "3. Change electoral term.",
                 "4. Call a snap election.",
                 "5. Ban a party.", # not implemented yet
                 "6. Grant emergency powers.", # not implemented yet
@@ -233,7 +234,7 @@ while not victory:
         print()
 
     # LEGISLATIVE SESSION
-
+    
     # vote: vote on something
     def vote(roster, sponsor) -> bool:
         yea = 0; nay = 0; abstain = 0;
@@ -268,36 +269,41 @@ while not victory:
         else: 
             print("The bill did not pass.")
             sponsor.support -= 50
-            return False
-
+            return Fals
+    
     print(f"Legislative Session of {year}")
     for bill_proposal, sponsor in legislative_agenda:
         print()
         print("PROPOSAL: ",end="")
-        if bill_proposal == 1:
+        if bill_proposal == 1: # support
             print("Motion to support")
             print("Not implemented yet")
-        if bill_proposal == 2:
+        if bill_proposal == 2: # denounce
             print("Motion to denounce")
             print("Not implemented yet")
-        if bill_proposal == 3:
+        if bill_proposal == 3: # change electoral terms
             print("Motion to change electoral terms")
             print(f"{sponsor.name}, how many years should a term be?")
             proposed_term = putty(range(1,11))
             if vote(roster, sponsor):
                 print("The electoral term is now",proposed_term,"years.")
-                print("This shall take effect after the next election.")
+                print(f"The last election was in {last_election}")
+                print(f"New elections in {last_election + proposed_term}")
                 electoral_term = proposed_term
-        if bill_proposal == 4:
+                election_year = electoral_term + last_election
+                if year == election_year: 
+                    election = True
+                    snap_election = True
+        if bill_proposal == 4: # snap election
             print("Motion to call a snap election")
             if vote(roster, sponsor):
                 print("Snap elections shall take place.")
                 election = True
                 snap_election = True
-        if bill_proposal == 5:
+        if bill_proposal == 5: # ban a party
             print("Motion to ban a party")
             print("Not implemented yet")
-        if bill_proposal == 6:
+        if bill_proposal == 6: # grant emergeny powers
             print("Motion to grant emergency powers to")
             print("Not implemented yet")
     print()
@@ -317,7 +323,7 @@ while not victory:
         for party in roster:
             print(f"{party.name}: {party.seats} Seats")
         
-        print('DEBUG:', sum([p.seats for p in roster]))
+        # print('DEBUG:', sum([p.seats for p in roster]))
 
         election = False
     

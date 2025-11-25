@@ -1,35 +1,36 @@
 GAME LOGIC
 
-TERMINOLOGY and KEY
-- A -> B = A converted to / spent on B
-- A :: B = A used as a factor to determine how much B you get
+PARTY SETUP
+The number of parties is between 2 and 8 (inclusive).
+The total number of seats at the start is 120 (119 if 7 players).
+Each party starts with an equal proportion of seats.
+Each party also starts with $2000 and 100 Support.
 
-PLAYER SETUP
-Total number of players: 2 <= n <= 8
-Starting STATS: 
-- Seats: 120/n (119/7 if n = 7)
-- Money: $2000
-- Support: 100
-
-STATS per PLAYER
-- Seats: used to vote on LEGISLATION.
-- Money: used to complete ACTIONS.
-- Support: Used to determine ELECTION outcome.
+PARTY STATS:
+Each party has these stats:
+Seats:
+- Used when voting on bills.
+- Seats are gained or lost during elections.
+Money:
+- Used to complete actions.
+- Money can be gained and lost through actions.
+Support: 
+- Used to determine election results. 
+- Support can be gained and lost through actions.
 
 ACTIONS:
-
-Rally: Money -> Support
-- small rally 
-    -$100, + 10 + rand(-2~10) Support
-- medium rally  
-    -$500, + 50 + rand(-10~50) Support
-- large rally 
-    -$1000, + 100 + rand(-20~100) Support
-
-Fundraiser: Support :: Money
-    + 1000 * (Support/sum(Support)) + rand(-500~500)
+# RALLY: Exchange money for support.
+- Small rally: -$100 => +10 + rand(-2~10) Support
+- Medium rally: -$500 => +50 + rand(-10~50) Support
+- Large rally: -$1000 => +100 + rand(-20~100) Support
+# FUNDRAISER: Earn money based on support.
+- +1000 * (own Support/sum(Support)) + rand(-500~500)
+# BILL: Propose a bill to be voted on later.
+- Change electoral term: change how often elections are. (1 year ~ 10 years)
+- Snap election: hold an election right away. 
 
 ELECTIONS:
+- Elections take place every 4 years by default; this can be changed via a bill.
 - Each party gets a proportion of the total number of seats.
 - The proportion is equal to their support over the sum of all supports.
 - After each election, the turn order changes: most seats go first.
@@ -50,5 +51,3 @@ OTHER IDEAS
 - Party puppeteering
 - Party ideology
 - Instability (within party)
-
-
