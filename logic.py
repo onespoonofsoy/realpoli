@@ -3,9 +3,7 @@ import tkinter as tk
 import math
 from bodies import Party
 
-### IMPORTANT FUNCTIONS ###
-# putty: receive numerical input within a range
-def putty(ranger) -> int: 
+def putty(ranger) -> int: # receive numerical input given range
     # print("VALID:", ranger)
     return_val = -1
     while True:
@@ -18,8 +16,6 @@ def putty(ranger) -> int:
         except ValueError:
             print("Invalid input, try again: ",end="")
     return return_val
-
-### IMPORTANT VARIABLES ###
 last_election = 1900
 year = 1901
 election_year = 1904
@@ -29,6 +25,10 @@ success_statements = [
     'It was successful!',
     'It wasn\'t that successful.',
 ]
+victory = False
+election = False
+snap_election = False
+electoral_term = 4
 
 ### PLAYER SETUP ###
 # Get player amount
@@ -51,7 +51,6 @@ print()
 ### DISPLAY SETUP ###
 display = tk.Tk()
 display.title("Realpoli")
-
 # --- STATS ---
 top_frame = tk.Frame(display)
 top_frame.pack(side="top", fill="x")
@@ -62,7 +61,6 @@ seats_text += f"\nFor 2/3: {math.ceil(total_seats*(2/3))}"
 
 total_seats_label = tk.Label(top_frame, text = seats_text)
 total_seats_label.pack(pady = 5)
-
 # --- PARTY LIST ---
 main_frame = tk.Frame(display)
 main_frame.pack(fill="both", expand = True)
@@ -74,53 +72,64 @@ for i, p in enumerate(roster):
     labels.append(lbl)
 
 def update_display():
-
     for i, p in enumerate(roster):
         texterous = p.name + f" | ${p.money} |"
         texterous += f"Support: {p.support} | Seats: {p.seats}"
         labels[i].config(text = texterous)
-
     total_seats_label.config(text = seats_text)
-
     display.after(100, update_display)
 
 update_display()
 
 ### MAIN LOOP ###
-victory = False
-election = False
-snap_election = False
-electoral_term = 4
+
 while not victory:
 
     # announce year (PER-YEAR ACTIONS)
     if year == election_year:
         print("It's election year!")
+        last_election = year
         election_year += electoral_term
         election = True
     print('CURRENT YEAR:',year)
     print('NEXT ELECTION:', election_year,'\n')
     legislative_agenda = []
 
-    # PER-PARTY ACTIONS
+    # PER-PARTY ACTIONS & VARIABLES
     for id in range(len(roster)):
-        # recalculate variables and set party whose turn it is
+
         supports = [party.support for party in roster]
         support_sum = sum(supports)
-        # avg = statistics.mean(supports)
-        # std = statistics.stdev(supports)
-        # print("Debugging: avg and std:", avg, std)
         party = roster[id]
 
         print(party.name)
         print("Money:", party.money, "// Support:", party.support,end= " //")
         # print(" Seats:",party.seats)
         print(f" Seats: {party.seats}/{total_seats}")
+
+        if party.debt > 0:
+            print(f"This party owes {party.debt} to the bank.")
+            print(f"Yearly interest {party.interest} applied.")
+            party.debt += int(party.debt * party.interest)
+
         print("Options:")
-        print("1. Rally\n2. Fundraiser\n3. Propose legislation\n4. Skip")
-        selection = putty(range(1,5))
+        start_num = 1
+        if party.debt > 0:
+            print("0. Pay debt")
+            start_num = 0
+        print("1. Rally\n2. Fundraiser\n3. Propose a Bill\n4. Borrow Money")
+        print("5. Skip Turn")
+        selection = putty(range(start_num,6))
         
-        if selection == 1: # RALLY
+        if selection == 0: # PAY DEBT
+            print("How much are you paying off?")
+            pay_amount = putty(range(0, max(party.money+1,party.debt+1)))
+            party.debt -= pay_amount
+            if party.debt == 0:
+                print("Your debt is now paid off.")
+                party.interest = 0.0
+            print("Thank you for your business.")
+        elif selection == 1: # RALLY
             upper_limit = 1
             print("Choose rally size:")
             if party.money >= 100:
@@ -162,7 +171,6 @@ while not victory:
             print(f"Money: -{money}, Support: +{support}")
             party.money -= money
             party.support += support
-
         elif selection == 2: # FUNDRAISER
             upper_limit = 0
             # print("Choose fundraiser size: 1. small, 2. medium, 3. large")
@@ -200,10 +208,9 @@ while not victory:
             ### DEBUG
             money = int(multiplier * (party.support/support_sum) + modifier)
             print(f"Money: +{money}")
-            party.money += money
-        
-        elif selection == 3: # PROPOSE LEGISLATION
-            print("Choose legislation to propose: ")
+            party.money += money        
+        elif selection == 3: # PROPOSE a BILL
+            print("Choose a bill to propose: ")
             lawlist = [
                 "1. Support a policy.", # not implemented yet
                 "2. Denounce a policy.", # not implemented yet
@@ -212,21 +219,29 @@ while not victory:
                 "5. Ban a party.", # not implemented yet
                 "6. Grant emergency powers.", # not implemented yet
             ]
-            for l in lawlist[2:]:
+            for l in lawlist[2:4]:
                 print(l)
             bill = putty(range(2,7))
             legislative_agenda.append((bill,party))
-        
-        elif selection == 4: # SKIP (SURVEY)
+            print("That will be voted on later.")        
+        elif selection == 4: # BORROW MONEY
+            print("Here are your loan options:")
+            print(f"1) $5000 at 1% annual interest")
+            print(f"2) $10000 at 5% annual interest")
+            print(f"3) $50000 at 10% annual interest")
+            selection = putty(range(1,4))
+            amount = 5000; interest = 0.01
+            if selection == 2:
+                amount = 10000; interest = 0.05
+            if selection == 3:
+                amount = 50000; interest = 0.1
+            print(f"${amount} added to your account.")
+            print(f"Your interest is {int(interest*100)}%")
+            party.money += amount
+            party.debt += amount
+            party.interest = interest        
+        elif selection == 5: # SKIP (PROPOSE LEGISLATION)
             print('TURN SKIPPED')
-            # print("survey not implemented yet")
-        
-        elif selection == 5: # PROPOSE LEGISLATION
-            print('TURN SKIPPED')
-
-        elif selection == 6: # SKIP
-            print("TURN SKIPPED")
-        
         else:
             print('ERROR')
             exit()
@@ -269,9 +284,10 @@ while not victory:
         else: 
             print("The bill did not pass.")
             sponsor.support -= 50
-            return Fals
+            return False
     
     print(f"Legislative Session of {year}")
+    if not legislative_agenda: print("No bills this year.")
     for bill_proposal, sponsor in legislative_agenda:
         print()
         print("PROPOSAL: ",end="")
@@ -291,7 +307,8 @@ while not victory:
                 print(f"New elections in {last_election + proposed_term}")
                 electoral_term = proposed_term
                 election_year = electoral_term + last_election
-                if year == election_year: 
+                if year == election_year:
+                    print("As a result, elections will be held this year.") 
                     election = True
                     snap_election = True
         if bill_proposal == 4: # snap election
@@ -309,12 +326,12 @@ while not victory:
     print()
 
     # ELECTIONS
+    if snap_election: 
+        print("SNAP ",end="")
+        last_election = year
+        election_year = year + electoral_term
+        snap_election = False
     if election:
-
-        if snap_election: 
-            print("SNAP ",end="")
-            election_year = year + electoral_term
-
         print("ELECTION OF", year)
         support_sum = sum([p.support for p in roster])
         for party in roster:
@@ -322,9 +339,7 @@ while not victory:
         roster.sort(key = lambda p: p.seats, reverse = True)
         for party in roster:
             print(f"{party.name}: {party.seats} Seats")
-        
         # print('DEBUG:', sum([p.seats for p in roster]))
-
         election = False
     
     print()
